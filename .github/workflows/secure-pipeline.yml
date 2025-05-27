@@ -90,3 +90,45 @@ jobs:
         with:
           name: trivy-report
           path: trivy-report.json
+
+  zap-dast-scan:
+
+    name: Run OWASP ZAP (DAST)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build Docker image
+        run: docker build -t juice-shop:latest .
+
+      - name: Run Juice Shop container with HTTPS
+        run: |
+          docker run -d \
+            -e HTTPS=true \
+            -e SSLKEY=ssl/server.key \
+            -e SSLCERT=ssl/server.cert \
+            -p 3000:3000 \
+            juice-shop:latest
+          sleep 30  # Wait for the server to fully start
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'https://localhost:3000'
+          format: 'json'
+          output: 'zap-report.json'
+          # Disable SSL verification if self-signed certs (add if needed):
+          cmd_options: '-config api.disablekey=true -config connection.dnsTtl=0 -config connection.dnsCacheEntries=0 -config connection.proxyChain.skip=true -config connection.sslAcceptAll=true'
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: zap-report.json
+
