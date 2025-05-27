@@ -46,6 +46,8 @@ LABEL maintainer="Bjoern Kimminich <bjoern.kimminich@owasp.org>" \
 WORKDIR /juice-shop
 COPY --from=installer --chown=65532:0 /juice-shop .
 COPY --chown=65532:0 --from=libxmljs-builder /juice-shop/node_modules/libxmljs ./node_modules/libxmljs
+# Copy SSL directory
+COPY ssl /juice-shop/ssl
 USER 65532
 EXPOSE 3000
 CMD ["/juice-shop/build/app.js"]
