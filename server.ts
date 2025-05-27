@@ -1,7 +1,4 @@
-/*
- * Copyright (c) 2014-2025 Bjoern Kimminich & the OWASP Juice Shop contributors.
- * SPDX-License-Identifier: MIT
- */
+import { formValidationRouter } from './routes/formValidation'
 import i18n from 'i18n'
 import cors from 'cors'
 import fs from 'node:fs'
@@ -632,7 +629,8 @@ restoreOverwrittenFilesWithOriginals().then(() => {
 
   /* Route for redirects */
   app.get('/redirect', performRedirect())
-
+  app.use('/form-validation', formValidationRouter)
+  
   /* Routes for promotion video page */
   app.get('/promotion', promotionVideo())
   app.get('/video', getVideo())
@@ -699,25 +697,55 @@ errorhandler.title = `${config.get<string>('application.name')} (Express ${utils
 
 export async function start (readyCallback?: () => void) {
   const datacreatorEnd = startupGauge.startTimer({ task: 'datacreator' })
-  await sequelize.sync({ force: true })
-  await datacreator()
+  await sequelize.sync({ alter: true }) // safer: adjusts tables if needed without dropping
+
+  try {
+    await datacreator()
+    logger.info(' datacreator() completed successfully.')
+  } catch (err) {
+    logger.error('datacreator() failed:', err)
+  }
+
   datacreatorEnd()
   const port = process.env.PORT ?? config.get('server.port')
   process.env.BASE_PATH = process.env.BASE_PATH ?? config.get('server.basePath')
 
   metricsUpdateLoop = Metrics.updateLoop() // vuln-code-snippet neutral-line exposedMetricsChallenge
 
-  server.listen(port, () => {
-    logger.info(colors.cyan(`Server listening on port ${colors.bold(`${port}`)}`))
-    startupGauge.set({ task: 'ready' }, (Date.now() - startTime) / 1000)
-    if (process.env.BASE_PATH !== '') {
-      logger.info(colors.cyan(`Server using proxy base path ${colors.bold(`${process.env.BASE_PATH}`)} for redirects`))
-    }
-    registerWebsocketEvents(server)
-    if (readyCallback) {
-      readyCallback()
-    }
-  })
+  if (process.env.HTTPS === 'true') {
+    const fs = require('fs')
+    const https = require('https')
+
+    const key = fs.readFileSync(process.env.SSLKEY || 'ssl/server.key')
+    const cert = fs.readFileSync(process.env.SSLCERT || 'ssl/server.cert')
+
+    const httpsServer = https.createServer({ key, cert }, app)
+
+    httpsServer.listen(port, () => {
+      logger.info(colors.cyan(`HTTPS Server listening on port ${colors.bold(`${port}`)}`))
+      startupGauge.set({ task: 'ready' }, (Date.now() - startTime) / 1000)
+      if (process.env.BASE_PATH !== '') {
+        logger.info(colors.cyan(`Server using proxy base path ${colors.bold(`${process.env.BASE_PATH}`)} for redirects`))
+      }
+      registerWebsocketEvents(httpsServer)
+      if (readyCallback) {
+        readyCallback()
+      }
+    })
+  } else {
+    server.listen(port, () => {
+      logger.info(colors.cyan(`HTTP Server listening on port ${colors.bold(`${port}`)}`))
+      startupGauge.set({ task: 'ready' }, (Date.now() - startTime) / 1000)
+      if (process.env.BASE_PATH !== '') {
+        logger.info(colors.cyan(`Server using proxy base path ${colors.bold(`${process.env.BASE_PATH}`)} for redirects`))
+      }
+      registerWebsocketEvents(server)
+      if (readyCallback) {
+        readyCallback()
+      }
+    })
+  }
+
 
   void collectDurationPromise('customizeApplication', customizeApplication)() // vuln-code-snippet hide-line
   void collectDurationPromise('customizeEasterEgg', customizeEasterEgg)() // vuln-code-snippet hide-line
