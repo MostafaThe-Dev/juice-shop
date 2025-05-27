@@ -64,3 +64,29 @@ jobs:
         with:
           name: dependency-check-report
           path: dependency-check-report/dependency-check-report.json
+
+  trivy-container-scan:
+    name: Run Trivy (Container Image Scanning)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t juice-shop:latest .
+
+      - name: Run Trivy to scan the image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: juice-shop:latest
+          format: json
+          output: trivy-report.json
+
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
