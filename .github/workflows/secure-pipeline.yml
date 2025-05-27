@@ -30,3 +30,37 @@ jobs:
         with:
           name: bandit-report
           path: bandit-report.json
+
+ dependency-check-sca:
+
+    name: Run OWASP Dependency-Check (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Dependency-Check
+        run: |
+          curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.7/dependency-check-9.0.7-release.zip -o dc.zip
+          unzip dc.zip -d dependency-check
+          chmod +x dependency-check/bin/dependency-check.sh
+
+      - name: Run Dependency-Check
+        run: |
+          ./dependency-check/bin/dependency-check.sh \
+            --project "Juice Shop" \
+            --scan . \
+            --format "JSON" \
+            --out dependency-check-report
+
+      - name: Upload Dependency-Check Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: dependency-check-report/dependency-check-report.json
