@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Secure Infrastructure with IAM Role, Encrypted S3 Bucket, Bucket Policy, and Security Group
+
+Resources:
+  # IAM Role with least privilege
+  MyIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LeastPrivilegePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: 
+                  - arn:aws:s3:::my-secure-bucket-mostafathe-dev-33998822/*
+  
+  # Security Group allowing SSH from your IP and HTTPS from anywhere
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH from my IP and HTTPS from anywhere
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 178.135.22.113/32  # Replace with your actual IP
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+  # Encrypted S3 Bucket
+  MySecureBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-secure-bucket-mostafathe-dev-33998822  # Replace with your actual bucket name
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # Bucket Policy to enforce HTTPS-only access
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MySecureBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub "${MySecureBucket.Arn}"
+              - !Sub "${MySecureBucket.Arn}/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+

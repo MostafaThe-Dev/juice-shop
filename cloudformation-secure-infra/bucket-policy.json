@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowRoleAccessOnly",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::376572740946:role/secure-infra-stack-MyIAMRole-HudovMuIwUW4"
+      },
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::my-secure-bucket-mostafathe-dev-33998822",
+        "arn:aws:s3:::my-secure-bucket-mostafathe-dev-33998822/*"
+      ]
+    }
+  ]
+}
