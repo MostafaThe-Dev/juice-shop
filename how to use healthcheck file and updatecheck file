@@ -1,0 +1,7 @@
+sudo ./health_check.sh         # Checks on default port 3000
+sudo ./health_check.sh 8444    # Checks on custom port if needed
+
+usage
+
+sudo ./update_juice_shop.sh 8444 && sudo ./health_check.sh 8444(if port not mentioned i defaults to port 3000)
+

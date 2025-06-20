@@ -1,0 +1,69 @@
+SQL Injection:
+
+	Detect: Monitor logs for unusual SQL patterns or errors.
+
+	Contain: Block or throttle the IPs associated with the injection attempts.
+
+	Analyze: Check the logs to identify the exact nature and source of the injection.
+
+	Eradicate: Apply patches to fix the vulnerability (e.g., use parameterized queries or prepared statements).
+
+	Recover: If data was affected, restore from backups.
+
+	Review: After mitigation, conduct a post-mortem to determine root cause and prevention measures.
+
+Unauthorized Access:
+
+	Detect: Alerts triggered by failed login attempts or abnormal access patterns.
+
+	Contain: Disable the user account involved, lock out the source IP.
+
+	Analyze: Identify how access was gained and assess the scope.
+
+	Eradicate: Implement stronger authentication mechanisms (e.g., Multi-Factor Authentication).
+
+	Recover: Reset credentials, restore compromised data from backups.
+
+	Review: Conduct a security audit to assess vulnerabilities.
+
+Privilege Escalation:
+
+	Detect: Detect unusual user behavior or privilege elevation.
+
+	Contain: Revoke privileges for the affected account.
+
+	Analyze: Investigate the root cause (e.g., system misconfiguration, unpatched vulnerability).
+
+	Eradicate: Patch system vulnerabilities and reconfigure privileges.
+
+	Recover: Restore access to legitimate users.
+
+	Review: Conduct a security assessment to prevent future privilege escalation.
+
+3. Communication Strategies
+
+Internal Communication:
+
+	Define who needs to be informed (e.g., IT staff, security team, management).
+
+	Use encrypted communication channels (e.g., Slack, Microsoft Teams, etc.) for internal communication during the incident.
+
+	Establish a centralized communication hub where all updates and actions can be logged in real-time.
+
+	External Communication:
+
+	If necessary, notify external stakeholders (e.g., customers, partners) in case of a breach.
+
+	Prepare pre-written communication templates for breach disclosures, as per compliance requirements (e.g., GDPR, CCPA).
+
+4. Post-Incident Review
+
+	After resolving the incident, conduct a post-mortem or lessons learned session to:
+
+	Review the effectiveness of the response.
+
+	Identify any missed steps or areas for improvement.
+
+	Adjust and improve playbooks, logging, and alerting procedures.
+
+	Share findings with the team to improve future incident handling.
