@@ -65,3 +65,12 @@ config/*.yml
 # System Files
 .DS_Store.angular/cache/
 .angular/cache/
+frontend/src/assets/public/videos/owasp_promo.mp4
+frontend/src/assets/public/videos/owasp_promo.mp4
+frontend/src/assets/public/images/uploads/my-rare-collectors-item!-[$(-°-ʖ-°)$]-1572603645543.jpg
+docs/
+frontend/src/assets/public/images/uploads/IMG_4253.jpg
+frontend/src/assets/private/fair_clouds_4k.png
+screenshots/
+frontend/src/assets/private/earth_normalmap_flat4k.jpg
+test/files/invalidSizeForServer.pdf
